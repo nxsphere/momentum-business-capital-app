@@ -1,0 +1,8 @@
+name = "mbc-form-handler"
+main = "src/index.ts"
+compatibility_date = "2024-01-15"
+
+# You'll need to set these environment variables using wrangler secrets
+# SENDGRID_API_KEY = "your-sendgrid-api-key"  
+# NOTIFICATION_EMAIL = "your-email@domain.com"
+# FROM_EMAIL = "noreply@yourdomain.com" 
