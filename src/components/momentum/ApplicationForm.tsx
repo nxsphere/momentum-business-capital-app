@@ -36,6 +36,7 @@ const ApplicationForm = ({
   docusignUrl 
 }: ApplicationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
   const { toast } = useToast();
   
   const handleFormSubmission = async () => {
@@ -67,6 +68,7 @@ const ApplicationForm = ({
         });
         
         // Open DocuSign after successful submission
+        setIsIframeLoading(true); // Reset loading state when opening dialog
         setIsDialogOpen(true);
       } else {
         toast({
@@ -220,12 +222,25 @@ const ApplicationForm = ({
                         Complete Your Application
                       </DialogTitle>
                     </DialogHeader>
-                    <div className="flex-1 px-6 pb-6">
+                    <div className="flex-1 px-6 pb-6 relative">
+                      {isIframeLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg z-10">
+                          <div className="flex flex-col items-center space-y-4">
+                            <Loader2 className="h-12 w-12 animate-spin text-momentum-navy" />
+                            <div className="text-center">
+                              <p className="text-momentum-navy font-medium text-lg">Loading DocuSign...</p>
+                              <p className="text-momentum-gray text-sm mt-1">This may take a few moments</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <iframe
                         src={docusignUrl}
                         className="w-full h-[calc(95vh-120px)] border-0 rounded-lg"
                         title="DocuSign Application Form"
                         sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
+                        onLoad={() => setIsIframeLoading(false)}
+                        onError={() => setIsIframeLoading(false)}
                       />
                     </div>
                   </DialogContent>

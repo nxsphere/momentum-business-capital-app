@@ -14,7 +14,7 @@ const Header = () => {
             <div className="flex items-center space-x-2 text-momentum-navy">
               <Phone className="h-4 w-4" />
               <span className="text-sm font-medium">Call us today:</span>
-              <span className="font-semibold text-lg">(800) 839-8066</span>
+              <span className="font-semibold text-lg">(305) 307-5217</span>
             </div>
           </div>
         </div>
