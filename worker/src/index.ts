@@ -1,6 +1,7 @@
 export interface Env {
   SENDGRID_API_KEY: string;
   NOTIFICATION_EMAIL: string;
+  NOTIFICATION_EMAIL_2: string;
   FROM_EMAIL: string;
 }
 
@@ -95,7 +96,10 @@ Please follow up with this lead as soon as possible.
         body: JSON.stringify({
           personalizations: [
             {
-              to: [{ email: env.NOTIFICATION_EMAIL }],
+              to: [
+                { email: env.NOTIFICATION_EMAIL },
+                { email: env.NOTIFICATION_EMAIL_2 }
+              ],
               subject: `New Funding Application - ${formData.businessName}`,
             },
           ],
