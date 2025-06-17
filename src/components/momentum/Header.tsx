@@ -8,7 +8,7 @@ const Header = () => {
       <header className="shadow-md bg-slate-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <img src="/lovable-uploads/2c075b64-82e5-4211-a46e-f3188a724e1d.png" alt="Momentum Business Capital" className="h-10 w-auto" />
+            <img src="/assets/og-image.png" alt="Momentum Business Capital" className="h-10 w-auto" />
           </div>
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-momentum-navy">
