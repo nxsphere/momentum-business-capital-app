@@ -2,6 +2,7 @@ interface Env {
   SENDGRID_API_KEY: string;
   NOTIFICATION_EMAIL: string;
   NOTIFICATION_EMAIL_2: string;
+  NOTIFICATION_EMAIL_3: string;
   FROM_EMAIL: string;
 }
 
@@ -102,7 +103,8 @@ Please follow up with this lead as soon as possible.
           {
             to: [
               { email: env.NOTIFICATION_EMAIL },
-              { email: env.NOTIFICATION_EMAIL_2 }
+              { email: env.NOTIFICATION_EMAIL_2 },
+              { email: env.NOTIFICATION_EMAIL_3 }
             ],
             subject: `New Funding Application - ${formData.businessName}`,
           },
