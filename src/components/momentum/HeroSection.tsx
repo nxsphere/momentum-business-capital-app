@@ -53,9 +53,9 @@ const HeroSection = ({
                   applicationSection.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-                         >
-               Apply Now - Get Approved Today!
-             </Button>
+            >
+              Apply Now - Get Approved Today!
+            </Button>
           </div>
         </div>
       </div>

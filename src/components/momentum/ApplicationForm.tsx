@@ -62,11 +62,6 @@ const ApplicationForm = ({
       const result = await submitApplicationForm(submissionData);
       
       if (result.success) {
-        toast({
-          title: "Application Submitted!",
-          description: "Thank you! We'll contact you within 24 hours.",
-        });
-        
         // Open DocuSign after successful submission
         setIsIframeLoading(true); // Reset loading state when opening dialog
         setIsDialogOpen(true);
@@ -229,7 +224,6 @@ const ApplicationForm = ({
                             <Loader2 className="h-12 w-12 animate-spin text-momentum-navy" />
                             <div className="text-center">
                               <p className="text-momentum-navy font-medium text-lg">Loading DocuSign...</p>
-                              <p className="text-momentum-gray text-sm mt-1">This may take a few moments</p>
                             </div>
                           </div>
                         </div>
