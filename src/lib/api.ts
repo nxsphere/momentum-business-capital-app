@@ -11,10 +11,8 @@ export interface FormSubmissionData {
 
 export async function submitApplicationForm(formData: FormSubmissionData): Promise<{ success: boolean; message: string }> {
   try {
-    // Using the deployed Worker URL
-    const workerUrl = 'https://mbc-form-handler.shy-math-4d31.workers.dev/submit-application';
-    
-    const response = await fetch(workerUrl, {
+    // Use Pages Function endpoint (relative URL)
+    const response = await fetch('/api/submit-application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
