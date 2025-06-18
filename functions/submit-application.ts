@@ -103,8 +103,7 @@ Please follow up with this lead as soon as possible.
           {
             to: [
               { email: env.NOTIFICATION_EMAIL },
-              { email: env.NOTIFICATION_EMAIL_2 },
-              { email: env.NOTIFICATION_EMAIL_3 }
+              { email: env.NOTIFICATION_EMAIL_2 }
             ],
             subject: `New Funding Application - ${formData.businessName}`,
           },
