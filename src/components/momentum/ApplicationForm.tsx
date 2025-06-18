@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { submitApplicationForm, type FormSubmissionData } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -216,6 +215,9 @@ const ApplicationForm = ({
                       <DialogTitle className="text-2xl font-bold text-momentum-navy">
                         Complete Your Application
                       </DialogTitle>
+                      <DialogDescription className="text-momentum-gray">
+                        Please complete the DocuSign form to finalize your funding application.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="flex-1 px-6 pb-6 relative">
                       {isIframeLoading && (

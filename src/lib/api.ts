@@ -11,7 +11,17 @@ export interface FormSubmissionData {
 
 export async function submitApplicationForm(formData: FormSubmissionData): Promise<{ success: boolean; message: string }> {
   try {
-    // Use Pages Function endpoint (relative URL)
+    // Check if we're in development mode (localhost)
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDevelopment) {
+      // Mock response for local development
+      console.log('[DEV] Form submission simulated for:', formData.businessName);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      return { success: true, message: 'Application submitted successfully! (Development Mode)' };
+    }
+    
+    // Use Pages Function endpoint (relative URL) for production
     const response = await fetch('/api/submit-application', {
       method: 'POST',
       headers: {
