@@ -1,24 +1,20 @@
-name = "mbc-form-handler"
-main = "src/index.ts"
+name = "mbc-fullstack"
+main = "src/worker.ts"
 compatibility_date = "2024-01-15"
 
-# Environment variables for email configuration
-# Update NOTIFICATION_EMAIL with your actual email address
-# SENDGRID_API_KEY = "your-sendgrid-api-key"  
-# NOTIFICATION_EMAIL = "your-email@domain.com"  # <-- Update this with your email
-# FROM_EMAIL = "noreply@yourdomain.com"
+[site]
+bucket = "../dist"
 
-# Example:
-# NOTIFICATION_EMAIL = "admin@yourbusiness.com"
-
-# Option 1: Set variables directly (less secure for API keys)
 [vars]
-NOTIFICATION_EMAIL = "Leads@momentumbusinesscapital.com"  # Primary recipient
-NOTIFICATION_EMAIL_2 = "support@joinmbc.com"              # Secondary recipient
-FROM_EMAIL = "funding@momentumbusiness.capital"           # From address
+NOTIFICATION_EMAIL = "Leads@momentumbusinesscapital.com"
+NOTIFICATION_EMAIL_2 = "support@joinmbc.com"
+FROM_EMAIL = "support@joinmbc.com"
+# Do NOT put SENDGRID_API_KEY here—set it as a secret in the Cloudflare dashboard!
 
-# Option 2: Use wrangler secrets for sensitive data (recommended)
-# Run these commands to set secrets securely:
-# wrangler secret put SENDGRID_API_KEY
-# wrangler secret put NOTIFICATION_EMAIL
-# wrangler secret put FROM_EMAIL 
+[env.production]
+name = "mbc-fullstack"
+route = "app.momentumbusiness.capital/*"
+
+[observability.logs]
+enabled = true
+invocation_logs = true
