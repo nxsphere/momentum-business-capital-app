@@ -242,7 +242,7 @@ const ApplicationForm = ({
                 
                 <p className="text-momentum-gray text-center leading-relaxed">
                   By submitting this form, you agree to our terms and privacy policy. 
-                  A representative will contact you within 24 hours.
+                  A representative will contact you within 24 Business hours.
                 </p>
               </form>
             </CardContent>
