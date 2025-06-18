@@ -9,9 +9,13 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:build": "npm run build && npm run preview",
     "deploy": "wrangler pages deploy dist",
+    "deploy:dev": "npm run build && wrangler pages deploy dist --project-name mbc-landing-page-dev",
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name mbc-landing-page",
     "deploy:preview": "wrangler pages deploy dist --compatibility-date=2024-01-15",
-    "wrangler:dev": "wrangler pages dev dist --compatibility-date=2024-01-15"
+    "wrangler:dev": "wrangler pages dev dist --compatibility-date=2024-01-15",
+    "dev:full": "npm run build && wrangler pages dev dist --port 3000"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.4.0",
@@ -49,6 +53,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "framer-motion": "^12.18.1",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
@@ -56,6 +61,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-intersection-observer": "^9.16.0",
     "react-resizable-panels": "^2.1.3",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
