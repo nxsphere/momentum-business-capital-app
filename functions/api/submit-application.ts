@@ -1,7 +1,8 @@
 import { emailConfig } from '../config';
+import { MailtrapClient } from "mailtrap";
 
 interface Env {
-  SENDGRID_API_KEY: string;
+  MAILTRAP_API_KEY: string;
 }
 
 interface FormData {
@@ -89,56 +90,22 @@ Business Information:
 ${emailConfig.settings.followUpMessage}
     `;
     
-    // Send email using SendGrid API
-    const emailResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.SENDGRID_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: emailConfig.recipients.map(email => ({ email })),
-            subject: emailConfig.subject(formData.businessName),
-          },
-        ],
-        from: { email: emailConfig.from.email, name: emailConfig.from.name },
-        content: [
-          {
-            type: 'text/plain',
-            value: emailText,
-          },
-          {
-            type: 'text/html',
-            value: emailHtml,
-          },
-        ],
-      }),
+    const client = new MailtrapClient({ token: env.MAILTRAP_API_KEY });
+
+    const sender = { name: emailConfig.from.name, email: emailConfig.from.email };
+
+    const emailResponse = await client.send({
+      from: sender,
+      to: emailConfig.recipients.map(email => ({ email })),
+      subject: emailConfig.subject(formData.businessName),
+      text: emailText,
+      html: emailHtml,
+      category: "Application Submissions"
     });
-    
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Email sending failed:', errorText);
-      console.error('SendGrid response status:', emailResponse.status);
-      
-      // Log the form data for manual follow-up when email fails
-      console.log('FORM SUBMISSION DATA (Email Failed):', JSON.stringify(formData, null, 2));
-      
-      // Still return success to user, but log the email failure
-      return new Response(JSON.stringify({ 
-        success: true,
-        message: 'Application submitted successfully! We will contact you soon.',
-        note: 'Email notification temporarily unavailable'
-      }), {
-        status: 200,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        }
-      });
-    }
-    
+
+    // Mailtrap client throws on error, but we can add a check for success if needed
+    // For now, we assume success if no error is thrown. The catch block will handle failures.
+
     // Return success response
     return new Response(JSON.stringify({ 
       success: true, 
@@ -153,6 +120,16 @@ ${emailConfig.settings.followUpMessage}
     
   } catch (error) {
     console.error('Form submission error:', error);
+    
+    // Log the form data for manual follow-up when email fails
+    // This is a fallback in case the request body isn't available elsewhere
+    try {
+      const formDataText = await request.text();
+      console.log('FORM SUBMISSION DATA (Email Failed):', formDataText);
+    } catch (e) {
+      console.log('Could not retrieve form data on error.');
+    }
+
     return new Response(JSON.stringify({ 
       error: 'Internal server error' 
     }), {
