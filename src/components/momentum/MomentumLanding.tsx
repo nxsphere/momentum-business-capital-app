@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { sanitizeAndValidateFormData } from '@/utils/security';
-import Header from './momentum/Header';
-import HeroSection from './momentum/HeroSection';
-import BenefitsSection from './momentum/BenefitsSection';
-import FundingDetailsSection from './momentum/FundingDetailsSection';
-import ApplicationForm from './momentum/ApplicationForm';
-import TestimonialsSection from './momentum/TestimonialsSection';
-import Footer from './momentum/Footer';
-import FloatingElements from './momentum/FloatingElements';
+import Header from './Header';
+import HeroSection from './HeroSection';
+import BenefitsSection from './BenefitsSection';
+import FundingDetailsSection from './FundingDetailsSection';
+import ApplicationForm from './ApplicationForm';
+import TestimonialsSection from './TestimonialsSection';
+import Footer from './Footer';
+import FloatingElements from './FloatingElements';
 
 const MomentumLanding = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);

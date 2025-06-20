@@ -1,9 +1,7 @@
+import { emailConfig } from '../config';
+
 interface Env {
   SENDGRID_API_KEY: string;
-  NOTIFICATION_EMAIL: string;
-  NOTIFICATION_EMAIL_2: string;
-  NOTIFICATION_EMAIL_3: string;
-  FROM_EMAIL: string;
 }
 
 interface FormData {
@@ -71,7 +69,7 @@ export const onRequestPost = async (context: PagesContext<Env>): Promise<Respons
         <li><strong>Desired Amount:</strong> ${formData.desiredAmount}</li>
       </ul>
       
-      <p>Please follow up with this lead as soon as possible.</p>
+      <p>${emailConfig.settings.followUpMessage}</p>
     `;
     
     const emailText = `
@@ -88,7 +86,7 @@ Business Information:
 - Business Type: ${formData.businessType}
 - Desired Amount: ${formData.desiredAmount}
 
-Please follow up with this lead as soon as possible.
+${emailConfig.settings.followUpMessage}
     `;
     
     // Send email using SendGrid API
@@ -101,14 +99,11 @@ Please follow up with this lead as soon as possible.
       body: JSON.stringify({
         personalizations: [
           {
-            to: [
-              { email: env.NOTIFICATION_EMAIL },
-              { email: env.NOTIFICATION_EMAIL_2 }
-            ],
-            subject: `New Funding Application - ${formData.businessName}`,
+            to: emailConfig.recipients.map(email => ({ email })),
+            subject: emailConfig.subject(formData.businessName),
           },
         ],
-        from: { email: env.FROM_EMAIL, name: 'MBC Landing Page' },
+        from: { email: emailConfig.from.email, name: emailConfig.from.name },
         content: [
           {
             type: 'text/plain',
@@ -127,10 +122,16 @@ Please follow up with this lead as soon as possible.
       console.error('Email sending failed:', errorText);
       console.error('SendGrid response status:', emailResponse.status);
       
+      // Log the form data for manual follow-up when email fails
+      console.log('FORM SUBMISSION DATA (Email Failed):', JSON.stringify(formData, null, 2));
+      
+      // Still return success to user, but log the email failure
       return new Response(JSON.stringify({ 
-        error: `Email sending failed: ${emailResponse.status} - ${errorText}` 
+        success: true,
+        message: 'Application submitted successfully! We will contact you soon.',
+        note: 'Email notification temporarily unavailable'
       }), {
-        status: 500,
+        status: 200,
         headers: { 
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',

@@ -5,10 +5,7 @@ compatibility_date = "2024-01-15"
 pages_build_output_dir = "dist"
 
 [env.production]
-name = "mbc-landing-page"
+name = "mbc-landing-page" 
 
-[env.production.vars]
-NOTIFICATION_EMAIL = "leads@momentumbusinesscapital.com"
-NOTIFICATION_EMAIL_2 = "Hershey@nxsphere.com"
-FROM_EMAIL = "support@joinmbc.com"
-# Note: SENDGRID_API_KEY should be set as a secret in the Cloudflare dashboard 
+# Email configuration is now in functions/config.ts
+# Only the SendGrid API key needs to be set as a secret in Cloudflare dashboard 

@@ -234,9 +234,14 @@ const ApplicationForm = ({
                         src={docusignUrl}
                         className="w-full h-[calc(95vh-120px)] border-0 rounded-lg"
                         title="DocuSign Application Form"
-                        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
+                        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation allow-presentation allow-downloads"
+                        allow="geolocation 'none'; microphone 'none'; camera 'none'"
                         onLoad={() => setIsIframeLoading(false)}
-                        onError={() => setIsIframeLoading(false)}
+                        onError={() => {
+                          console.error('DocuSign iframe failed to load');
+                          setIsIframeLoading(false);
+                        }}
+                        referrerPolicy="strict-origin-when-cross-origin"
                       />
                     </div>
                   </DialogContent>
