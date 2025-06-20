@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "preview:build": "npm run build && npm run preview",
     "deploy": "wrangler pages deploy dist",
-    "deploy:dev": "npm run build && wrangler pages deploy dist --project-name mbc-landing-page --branch dev",
+    "deploy:dev": "npm run build && wrangler pages deploy dist --project-name mbc-landing-page --branch dev --commit-dirty=true",
     "deploy:prod": "npm run build && wrangler pages deploy dist --project-name mbc-landing-page --branch main",
     "deploy:preview": "wrangler pages deploy dist --compatibility-date=2024-01-15",
     "wrangler:dev": "wrangler pages dev dist --compatibility-date=2024-01-15",

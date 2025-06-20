@@ -5,7 +5,7 @@ compatibility_date = "2024-01-15"
 pages_build_output_dir = "dist"
 
 [env.production]
-name = "mbc-landing-page" 
+name = "mbc-landing-page"
 
 # Email configuration is now in functions/config.ts
 # Only the SendGrid API key needs to be set as a secret in Cloudflare dashboard 
