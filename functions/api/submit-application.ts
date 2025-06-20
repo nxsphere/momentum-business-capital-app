@@ -1,143 +1,315 @@
 import { emailConfig } from '../config';
-import { MailtrapClient } from "mailtrap";
 
-interface Env {
-  MAILTRAP_API_KEY: string;
+// Type declarations for Cloudflare Email Workers
+declare class EmailMessage {
+  constructor(from: string, to: string, raw: string);
+}
+
+interface CloudflareEnv {
+  EMAIL: {
+    send(message: EmailMessage): Promise<void>;
+  };
 }
 
 interface FormData {
   businessName: string;
-  contactName: string;
+  ownerName: string;
   email: string;
   phone: string;
+  fundingAmount: string;
+  timeInBusiness: string;
+  creditScore: string;
+  monthlyRevenue: string;
+  useOfFunds: string;
+  businessDescription: string;
   businessType: string;
-  desiredAmount: string;
-  timestamp: string;
-  source: string;
+  businessAddress: string;
 }
 
-interface PagesContext<T = unknown> {
-  request: Request;
-  env: T;
-  params: Record<string, string>;
-  next: () => Promise<Response>;
-  data: Record<string, unknown>;
-  waitUntil: (promise: Promise<unknown>) => void;
-}
-
-export const onRequestPost = async (context: PagesContext<Env>): Promise<Response> => {
-  const { request, env } = context;
-
-  // Handle CORS preflight requests
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
-
+export async function onRequestPost(context: { request: Request; env: CloudflareEnv }) {
   try {
-    const formData: FormData = await request.json();
+    const request = context.request;
+    const env = context.env;
+    
+    // Parse form data
+    const formData = await request.json() as FormData;
     
     // Validate required fields
-    if (!formData.businessName || !formData.contactName || !formData.email || !formData.phone) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        }
-      });
+    const requiredFields = ['businessName', 'ownerName', 'email', 'phone', 'fundingAmount'];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: `Missing required field: ${field}` 
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
     }
     
     // Create email content
-    const emailHtml = `
-      <h2>New Business Funding Application</h2>
-      <p><strong>Source:</strong> ${formData.source}</p>
-      <p><strong>Submission Time:</strong> ${formData.timestamp}</p>
-      
-      <h3>Business Information</h3>
-      <ul>
-        <li><strong>Business Name:</strong> ${formData.businessName}</li>
-        <li><strong>Contact Name:</strong> ${formData.contactName}</li>
-        <li><strong>Email:</strong> ${formData.email}</li>
-        <li><strong>Phone:</strong> ${formData.phone}</li>
-        <li><strong>Business Type:</strong> ${formData.businessType}</li>
-        <li><strong>Desired Amount:</strong> ${formData.desiredAmount}</li>
-      </ul>
-      
-      <p>${emailConfig.settings.followUpMessage}</p>
-    `;
+    const emailHTML = generateEmailHTML(formData);
+    const emailText = generateEmailText(formData);
     
-    const emailText = `
-New Business Funding Application
-
-Source: ${formData.source}
-Submission Time: ${formData.timestamp}
-
-Business Information:
-- Business Name: ${formData.businessName}
-- Contact Name: ${formData.contactName}
-- Email: ${formData.email}
-- Phone: ${formData.phone}
-- Business Type: ${formData.businessType}
-- Desired Amount: ${formData.desiredAmount}
-
-${emailConfig.settings.followUpMessage}
-    `;
-    
-    const client = new MailtrapClient({ token: env.MAILTRAP_API_KEY });
-
-    const sender = { name: emailConfig.from.name, email: emailConfig.from.email };
-
-    const emailResponse = await client.send({
-      from: sender,
-      to: emailConfig.recipients.map(email => ({ email })),
-      subject: emailConfig.subject(formData.businessName),
-      text: emailText,
-      html: emailHtml,
-      category: "Application Submissions"
+    // Send email using Cloudflare Email Workers
+    const emailPromises = emailConfig.recipients.map(async (recipient) => {
+      try {
+        // Create raw email message
+        const rawEmail = createRawEmail({
+          from: emailConfig.from,
+          to: recipient,
+          subject: emailConfig.subject(formData.businessName),
+          html: emailHTML,
+          text: emailText
+        });
+        
+        // Create EmailMessage instance
+        const message = new EmailMessage(
+          emailConfig.from.email,
+          recipient,
+          rawEmail
+        );
+        
+        // Send via Cloudflare Email Workers
+        await env.EMAIL.send(message);
+        
+        return { success: true, recipient };
+      } catch (error) {
+        console.error(`Email error for ${recipient}:`, error);
+        return { success: false, recipient, error };
+      }
     });
-
-    // Mailtrap client throws on error, but we can add a check for success if needed
-    // For now, we assume success if no error is thrown. The catch block will handle failures.
-
-    // Return success response
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Application submitted successfully!' 
+    
+    // Wait for all emails to complete
+    const emailResults = await Promise.all(emailPromises);
+    const successfulEmails = emailResults.filter(result => result.success);
+    
+    if (successfulEmails.length === 0) {
+      throw new Error('All email deliveries failed');
+    }
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Application submitted successfully',
+      emailsSent: successfulEmails.length,
+      totalRecipients: emailConfig.recipients.length
     }), {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
       }
     });
     
   } catch (error) {
     console.error('Form submission error:', error);
     
-    // Log the form data for manual follow-up when email fails
-    // This is a fallback in case the request body isn't available elsewhere
-    try {
-      const formDataText = await request.text();
-      console.log('FORM SUBMISSION DATA (Email Failed):', formDataText);
-    } catch (e) {
-      console.log('Could not retrieve form data on error.');
-    }
-
-    return new Response(JSON.stringify({ 
-      error: 'Internal server error' 
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to process application. Please try again later.'
     }), {
       status: 500,
       headers: { 
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
-}; 
+}
+
+// Handle CORS preflight
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  });
+}
+
+// Create raw email message in RFC 5322 format
+function createRawEmail(options: {
+  from: { email: string; name: string };
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}): string {
+  const boundary = `boundary_${Date.now()}_${Math.random().toString(36)}`;
+  const date = new Date().toUTCString();
+  const messageId = `<${Date.now()}.${Math.random().toString(36)}@joinmbc.com>`;
+  
+  return `Date: ${date}
+From: ${options.from.name} <${options.from.email}>
+To: <${options.to}>
+Message-ID: ${messageId}
+Subject: ${options.subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="${boundary}"
+
+--${boundary}
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+${options.text}
+
+--${boundary}
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+${options.html}
+
+--${boundary}--`;
+}
+
+function generateEmailHTML(data: FormData): string {
+  const timestamp = new Date().toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Funding Application</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+        .content { background: white; padding: 30px; border: 1px solid #e1e1e1; }
+        .footer { background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; text-align: center; font-size: 14px; color: #666; }
+        .field { margin-bottom: 20px; }
+        .label { font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
+        .value { background: #f8f9fa; padding: 12px; border-radius: 6px; border-left: 4px solid #667eea; }
+        .highlight { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .urgent { background: #ff6b6b; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>🚀 New Funding Application</h1>
+        <p>Received: ${timestamp}</p>
+      </div>
+      
+      <div class="content">
+        <div class="urgent">
+          <strong>⚡ ACTION REQUIRED:</strong> New lead requires immediate follow-up!
+        </div>
+        
+        <div class="highlight">
+          <h2>Business: ${data.businessName}</h2>
+          <p><strong>Funding Amount:</strong> $${Number(data.fundingAmount).toLocaleString()}</p>
+        </div>
+        
+        <div class="field">
+          <span class="label">👤 Owner Name</span>
+          <div class="value">${data.ownerName}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">📧 Email</span>
+          <div class="value"><a href="mailto:${data.email}">${data.email}</a></div>
+        </div>
+        
+        <div class="field">
+          <span class="label">📞 Phone</span>
+          <div class="value"><a href="tel:${data.phone}">${data.phone}</a></div>
+        </div>
+        
+        <div class="field">
+          <span class="label">🏢 Business Type</span>
+          <div class="value">${data.businessType || 'Not specified'}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">📍 Business Address</span>
+          <div class="value">${data.businessAddress || 'Not specified'}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">⏰ Time in Business</span>
+          <div class="value">${data.timeInBusiness}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">💳 Credit Score Range</span>
+          <div class="value">${data.creditScore}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">💰 Monthly Revenue</span>
+          <div class="value">$${Number(data.monthlyRevenue).toLocaleString()}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">🎯 Use of Funds</span>
+          <div class="value">${data.useOfFunds}</div>
+        </div>
+        
+        <div class="field">
+          <span class="label">📝 Business Description</span>
+          <div class="value">${data.businessDescription}</div>
+        </div>
+      </div>
+      
+      <div class="footer">
+        <p><strong>${emailConfig.settings.followUpMessage}</strong></p>
+        <p>This application was submitted via the MBC Landing Page</p>
+        <p>Generated on ${timestamp}</p>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateEmailText(data: FormData): string {
+  const timestamp = new Date().toLocaleString('en-US', {
+    timeZone: 'America/New_York'
+  });
+
+  return `
+🚀 NEW FUNDING APPLICATION RECEIVED
+
+⚡ ACTION REQUIRED: This lead requires immediate follow-up!
+
+BUSINESS DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Business Name: ${data.businessName}
+Owner Name: ${data.ownerName}
+Email: ${data.email}
+Phone: ${data.phone}
+
+FUNDING INFORMATION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Requested Amount: $${Number(data.fundingAmount).toLocaleString()}
+Use of Funds: ${data.useOfFunds}
+
+BUSINESS PROFILE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Business Type: ${data.businessType || 'Not specified'}
+Business Address: ${data.businessAddress || 'Not specified'}
+Time in Business: ${data.timeInBusiness}
+Monthly Revenue: $${Number(data.monthlyRevenue).toLocaleString()}
+Credit Score Range: ${data.creditScore}
+
+BUSINESS DESCRIPTION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${data.businessDescription}
+
+${emailConfig.settings.followUpMessage}
+
+Submitted: ${timestamp}
+Source: MBC Landing Page
+  `;
+} 
