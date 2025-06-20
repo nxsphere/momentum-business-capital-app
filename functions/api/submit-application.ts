@@ -52,7 +52,35 @@ export async function onRequestPost(context: { request: Request; env: Cloudflare
     const emailHTML = generateEmailHTML(formData);
     const emailText = generateEmailText(formData);
     
-    // Send email using Cloudflare Email Workers
+    // Check if we're in local development (no EMAIL binding available)
+    const isLocalDevelopment = !env?.EMAIL;
+    
+    if (isLocalDevelopment) {
+      // Local development simulation
+      console.log('🧪 LOCAL DEVELOPMENT - Email simulation');
+      console.log('📧 Email would be sent to:', emailConfig.recipients);
+      console.log('📝 Subject:', emailConfig.subject(formData.businessName));
+      console.log('📄 Email HTML preview:', emailHTML.substring(0, 200) + '...');
+      console.log('📄 Email Text preview:', emailText.substring(0, 200) + '...');
+      
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Application submitted successfully (LOCAL DEVELOPMENT)',
+        emailsSent: emailConfig.recipients.length,
+        totalRecipients: emailConfig.recipients.length,
+        note: 'This is local development - emails are simulated. Check console for email content.'
+      }), {
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        }
+      });
+    }
+    
+    // Production email sending using Cloudflare Email Workers
     const emailPromises = emailConfig.recipients.map(async (recipient) => {
       try {
         // Create raw email message
