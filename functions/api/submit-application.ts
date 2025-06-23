@@ -54,8 +54,8 @@ export async function onRequestPost(context: {
     const emailHTML = generateEmailHTML(formData);
     const emailText = generateEmailText(formData);
 
-    // Check if we're in local development (no EMAIL binding available)
-    const isLocalDevelopment = !env?.EMAIL;
+    // Check if we're in local development (no RESEND_API_KEY available)
+    const isLocalDevelopment = !env?.RESEND_API_KEY;
 
     if (isLocalDevelopment) {
       // Local development simulation
@@ -91,32 +91,36 @@ export async function onRequestPost(context: {
       );
     }
 
-    // Production email sending using Cloudflare Email Workers
+    // Production email sending using Resend API
     const emailPromises = emailConfig.recipients.map(async (recipient) => {
       try {
-        // Create raw email message
-        const rawEmail = createRawEmail({
-          from: emailConfig.from,
-          to: recipient,
-          subject: emailConfig.subject(formData.businessName),
-          html: emailHTML,
-          text: emailText,
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: `${emailConfig.from.name} <${emailConfig.from.email}>`,
+            to: [recipient],
+            subject: emailConfig.subject(formData.businessName),
+            html: emailHTML,
+            text: emailText,
+          }),
         });
 
-        // Create EmailMessage instance
-        const message = new EmailMessage(
-          emailConfig.from.email,
-          recipient,
-          rawEmail,
-        );
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(
+            `Resend API error: ${response.status} - ${errorData}`,
+          );
+        }
 
-        // Send via Cloudflare Email Workers
-        await env.EMAIL.send(message);
-
-        return { success: true, recipient };
+        const result = await response.json();
+        return { success: true, recipient, id: result.id };
       } catch (error) {
         console.error(`Email error for ${recipient}:`, error);
-        return { success: false, recipient, error };
+        return { success: false, recipient, error: error.message };
       }
     });
 
