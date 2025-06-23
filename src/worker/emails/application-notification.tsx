@@ -11,6 +11,20 @@ interface ApplicationNotificationProps {
   source: string;
 }
 
+// Format the desired amount with proper currency formatting
+const formatDesiredAmount = (amount: string): string => {
+  // Handle different amount formats from the form
+  const amountMap: { [key: string]: string } = {
+    '7500-25000': '$7,500 - $25,000',
+    '25000-50000': '$25,000 - $50,000', 
+    '50000-100000': '$50,000 - $100,000',
+    '100000-150000': '$100,000 - $150,000',
+    '150000+': '$150,000+'
+  };
+  
+  return amountMap[amount] || `$${amount}`;
+};
+
 export const ApplicationNotificationTemplate: React.FC<Readonly<ApplicationNotificationProps>> = ({
   businessName,
   contactName,
@@ -62,7 +76,9 @@ export const ApplicationNotificationTemplate: React.FC<Readonly<ApplicationNotif
           </tr>
           <tr style={{ backgroundColor: '#f9fafb' }}>
             <td style={{ padding: '8px 0', fontWeight: 'bold', color: '#374151' }}>Desired Amount:</td>
-            <td style={{ padding: '8px 0', color: '#111827', fontWeight: 'bold', fontSize: '16px' }}>{desiredAmount}</td>
+            <td style={{ padding: '8px 0', color: '#111827', fontWeight: 'bold', fontSize: '16px' }}>
+              {formatDesiredAmount(desiredAmount)}
+            </td>
           </tr>
         </table>
       </div>
