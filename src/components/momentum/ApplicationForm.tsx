@@ -31,12 +31,8 @@ const ApplicationForm = ({
   formData,
   handleInputChange,
   handleSubmit,
-  isDialogOpen,
-  setIsDialogOpen,
-  docusignUrl,
 }: ApplicationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isIframeLoading, setIsIframeLoading] = useState(true);
   const { toast } = useToast();
 
   const handleFormSubmission = async () => {
