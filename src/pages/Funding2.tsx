@@ -84,9 +84,6 @@ const Funding2 = () => {
         formData={formData}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        docusignUrl={DOCUSIGN_URL}
       />
       <TestimonialsSection />
       <Footer />

@@ -80,9 +80,6 @@ const MomentumLanding = () => {
         formData={formData}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        docusignUrl={DOCUSIGN_URL}
       />
       <TestimonialsSection />
       <Footer />

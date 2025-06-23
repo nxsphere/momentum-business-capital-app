@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { submitApplicationForm, type FormSubmissionData } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 interface FormData {
@@ -58,39 +57,55 @@ const ApplicationForm = ({
 
     try {
       // Prepare form data for API submission
-      const submissionData: FormSubmissionData = {
+      const submissionData = {
         ...formData,
         timestamp: new Date().toISOString(),
-        source: window.location.pathname.includes("funding-1")
-          ? "funding-1"
-          : "funding-2",
+        source: window.location.pathname.includes("funding-1") ? "funding-1" : "funding-2",
       };
 
-      // Send email via API
-      const result = await submitApplicationForm(submissionData);
+      // Send data to our API endpoint
+      const response = await fetch('/api/submit-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      const result = await response.json();
 
       if (result.success) {
-        // Open DocuSign PowerForms URL in new tab after successful email
-        const docusignUrl =
-          "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
-        window.open(docusignUrl, "_blank", "noopener,noreferrer");
-
+        // Show success message first
         toast({
           title: "Application Submitted Successfully!",
-          description:
-            "Your information has been sent and DocuSign is opening in a new tab.",
+          description: "Your information has been sent and DocuSign is opening in a new tab.",
+          duration: 5000, // Show for 5 seconds
+        });
+
+        // Small delay before opening DocuSign to ensure user sees the message
+        setTimeout(() => {
+          // Open DocuSign PowerForms URL in new tab after successful submission
+          const docusignUrl =
+            "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
+          window.open(docusignUrl, "_blank", "noopener,noreferrer");
+        }, 1000); // 1 second delay
+
+        // Reset form after successful submission
+        Object.keys(formData).forEach(key => {
+          handleInputChange(key, '');
         });
       } else {
         toast({
           title: "Submission Failed",
-          description: result.message,
+          description: result.message || "Failed to submit application. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error('Submission error:', error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Connection Error",
+        description: "Unable to submit application. Please check your connection and try again.",
         variant: "destructive",
       });
     } finally {

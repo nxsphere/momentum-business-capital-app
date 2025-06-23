@@ -1,0 +1,1 @@
+{"root":["./src/worker/index.ts","./src/worker/config/email.ts","./src/worker/emails/application-notification.tsx"],"version":"5.8.3"}

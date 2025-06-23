@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { sanitizeAndValidateFormData } from '@/utils/security';
@@ -78,9 +77,6 @@ const MomentumLanding = () => {
         formData={formData}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        docusignUrl={DOCUSIGN_URL}
       />
       <TestimonialsSection />
       <Footer />
