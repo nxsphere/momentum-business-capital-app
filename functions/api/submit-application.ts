@@ -289,7 +289,7 @@ Desired Amount: ${data.desiredAmount}
 Business Type: ${data.businessType}
 
 SUBMISSION DETAILS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━��━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Source Page: ${data.source}
 Submitted: ${data.timestamp}
 
