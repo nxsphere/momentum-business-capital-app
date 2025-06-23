@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { submitApplicationForm, type FormSubmissionData } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 interface FormData {
