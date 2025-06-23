@@ -68,14 +68,14 @@ This document outlines the development workflow for the Momentum Business Capita
 ### Development Environment
 - **Worker Name**: `momentum-business-capital-app-dev`
 - **Environment**: `development`
-- **Email Recipient**: Uses `dev-leads@momentumbusiness.capital`
-- **Secrets**: `RESEND_API_KEY_DEV`, `NOTIFICATION_EMAIL_DEV`
+- **Email Recipient**: Uses `dev-leads@momentumbusiness.capital` (from config file)
+- **Secrets**: `RESEND_API_KEY_DEV`
 
 ### Production Environment
 - **Worker Name**: `momentum-business-capital-landing`
 - **Environment**: `production`
-- **Email Recipient**: Uses `leads@momentumbusiness.capital`
-- **Secrets**: `RESEND_API_KEY_PROD`, `NOTIFICATION_EMAIL_PROD`
+- **Email Recipient**: Uses `leads@momentumbusiness.capital` (from config file)
+- **Secrets**: `RESEND_API_KEY_PROD`
 
 ## GitHub Actions Workflows
 
@@ -105,11 +105,9 @@ Set these in your GitHub repository settings → Secrets and variables → Actio
 
 ### Development Environment
 - `RESEND_API_KEY_DEV` - Resend API key for development
-- `NOTIFICATION_EMAIL_DEV` - Email for dev notifications (dev-leads@momentumbusiness.capital)
 
 ### Production Environment  
 - `RESEND_API_KEY_PROD` - Resend API key for production
-- `NOTIFICATION_EMAIL_PROD` - Email for production notifications (leads@momentumbusiness.capital)
 
 ## Quick Commands
 

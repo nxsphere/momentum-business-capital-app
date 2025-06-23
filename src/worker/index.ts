@@ -10,7 +10,6 @@ type Bindings = {
   };
   RESEND_API_KEY: string;
   ENVIRONMENT?: string;
-  NOTIFICATION_EMAIL?: string;
 };
 
 interface FormSubmissionData {
@@ -70,9 +69,9 @@ app.post("/api/submit-application", async (c) => {
     // Initialize Resend
     const resend = new Resend(c.env.RESEND_API_KEY);
     
-    // Determine recipient email based on environment
+    // Determine recipient email based on environment using config file
     const isProduction = c.env.ENVIRONMENT === 'production';
-    const recipientEmail = c.env.NOTIFICATION_EMAIL || (isProduction ? emailConfig.to : emailConfig.devTo);
+    const recipientEmail = isProduction ? emailConfig.to : emailConfig.devTo;
     
     // Send notification email
     const emailResult = await resend.emails.send({

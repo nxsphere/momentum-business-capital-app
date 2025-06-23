@@ -35,7 +35,6 @@ jobs:
           command: deploy --env dev
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_DEV }}
-          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL_DEV }}
 
       - name: Comment deployment status
         if: github.event_name == 'pull_request'

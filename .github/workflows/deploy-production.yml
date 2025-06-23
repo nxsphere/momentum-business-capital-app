@@ -34,7 +34,6 @@ jobs:
           command: deploy --env production
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_PROD }}
-          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL_PROD }}
 
       - name: Create deployment notification
         run: |

@@ -11,7 +11,6 @@ export interface Env {
   };
   RESEND_API_KEY: string;
   ENVIRONMENT?: string;
-  NOTIFICATION_EMAIL?: string;
 }
 
 // Cloudflare Workers global types
