@@ -36,7 +36,7 @@ const ApplicationForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleFormSubmission = () => {
+  const handleFormSubmission = async () => {
     // Validate form data
     if (
       !formData.businessName ||
@@ -54,15 +54,48 @@ const ApplicationForm = ({
       return;
     }
 
-    // Open DocuSign PowerForms URL in new tab
-    const docusignUrl =
-      "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
-    window.open(docusignUrl, "_blank", "noopener,noreferrer");
+    setIsSubmitting(true);
 
-    toast({
-      title: "Redirecting to Application",
-      description: "Opening DocuSign application form in a new tab.",
-    });
+    try {
+      // Prepare form data for API submission
+      const submissionData: FormSubmissionData = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+        source: window.location.pathname.includes("funding-1")
+          ? "funding-1"
+          : "funding-2",
+      };
+
+      // Send email via API
+      const result = await submitApplicationForm(submissionData);
+
+      if (result.success) {
+        // Open DocuSign PowerForms URL in new tab after successful email
+        const docusignUrl =
+          "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
+        window.open(docusignUrl, "_blank", "noopener,noreferrer");
+
+        toast({
+          title: "Application Submitted Successfully!",
+          description:
+            "Your information has been sent and DocuSign is opening in a new tab.",
+        });
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
