@@ -5,12 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 # Configuration for Cloudflare Pages
 pages_build_output_dir = "dist"
 
-# Email Workers configuration for local development
-[[send_email]]
-name = "EMAIL"
-
 [env.production]
-name = "mbc-landing-page" 
+name = "mbc-landing-page"
 
-# Email configuration is now in functions/config.ts
-# Only the SendGrid API key needs to be set as a secret in Cloudflare dashboard 
+# Environment variables
+# RESEND_API_KEY needs to be set as a secret in Cloudflare dashboard
+# Email configuration is in functions/config.ts

@@ -1,150 +1,170 @@
-import { emailConfig } from '../config';
-
-// Type declarations for Cloudflare Email Workers
-declare class EmailMessage {
-  constructor(from: string, to: string, raw: string);
-}
+import { emailConfig } from "../config";
 
 interface CloudflareEnv {
-  EMAIL: {
-    send(message: EmailMessage): Promise<void>;
-  };
+  RESEND_API_KEY: string;
 }
 
 interface FormData {
   businessName: string;
-  ownerName: string;
+  contactName: string;
   email: string;
   phone: string;
-  fundingAmount: string;
-  timeInBusiness: string;
-  creditScore: string;
-  monthlyRevenue: string;
-  useOfFunds: string;
-  businessDescription: string;
   businessType: string;
-  businessAddress: string;
+  desiredAmount: string;
+  timestamp: string;
+  source: string;
 }
 
-export async function onRequestPost(context: { request: Request; env: CloudflareEnv }) {
+export async function onRequestPost(context: {
+  request: Request;
+  env: CloudflareEnv;
+}) {
   try {
     const request = context.request;
     const env = context.env;
-    
+
     // Parse form data
-    const formData = await request.json() as FormData;
-    
+    const formData = (await request.json()) as FormData;
+
     // Validate required fields
-    const requiredFields = ['businessName', 'ownerName', 'email', 'phone', 'fundingAmount'];
+    const requiredFields = [
+      "businessName",
+      "contactName",
+      "email",
+      "phone",
+      "businessType",
+      "desiredAmount",
+    ];
     for (const field of requiredFields) {
       if (!formData[field]) {
-        return new Response(JSON.stringify({ 
-          success: false, 
-          error: `Missing required field: ${field}` 
-        }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `Missing required field: ${field}`,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
     }
-    
+
     // Create email content
     const emailHTML = generateEmailHTML(formData);
     const emailText = generateEmailText(formData);
-    
-    // Check if we're in local development (no EMAIL binding available)
-    const isLocalDevelopment = !env?.EMAIL;
-    
+
+    // Check if we're in local development (no RESEND_API_KEY available)
+    const isLocalDevelopment = !env?.RESEND_API_KEY;
+
     if (isLocalDevelopment) {
       // Local development simulation
-      console.log('🧪 LOCAL DEVELOPMENT - Email simulation');
-      console.log('📧 Email would be sent to:', emailConfig.recipients);
-      console.log('📝 Subject:', emailConfig.subject(formData.businessName));
-      console.log('📄 Email HTML preview:', emailHTML.substring(0, 200) + '...');
-      console.log('📄 Email Text preview:', emailText.substring(0, 200) + '...');
-      
-      return new Response(JSON.stringify({
-        success: true,
-        message: 'Application submitted successfully (LOCAL DEVELOPMENT)',
-        emailsSent: emailConfig.recipients.length,
-        totalRecipients: emailConfig.recipients.length,
-        note: 'This is local development - emails are simulated. Check console for email content.'
-      }), {
-        status: 200,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
-        }
-      });
+      console.log("🧪 LOCAL DEVELOPMENT - Email simulation");
+      console.log("📧 Email would be sent to:", emailConfig.recipients);
+      console.log("📝 Subject:", emailConfig.subject(formData.businessName));
+      console.log(
+        "📄 Email HTML preview:",
+        emailHTML.substring(0, 200) + "...",
+      );
+      console.log(
+        "📄 Email Text preview:",
+        emailText.substring(0, 200) + "...",
+      );
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Application submitted successfully (LOCAL DEVELOPMENT)",
+          emailsSent: emailConfig.recipients.length,
+          totalRecipients: emailConfig.recipients.length,
+          note: "This is local development - emails are simulated. Check console for email content.",
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+          },
+        },
+      );
     }
-    
-    // Production email sending using Cloudflare Email Workers
+
+    // Production email sending using Resend API
     const emailPromises = emailConfig.recipients.map(async (recipient) => {
       try {
-        // Create raw email message
-        const rawEmail = createRawEmail({
-          from: emailConfig.from,
-          to: recipient,
-          subject: emailConfig.subject(formData.businessName),
-          html: emailHTML,
-          text: emailText
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: `${emailConfig.from.name} <${emailConfig.from.email}>`,
+            to: [recipient],
+            subject: emailConfig.subject(formData.businessName),
+            html: emailHTML,
+            text: emailText,
+          }),
         });
-        
-        // Create EmailMessage instance
-        const message = new EmailMessage(
-          emailConfig.from.email,
-          recipient,
-          rawEmail
-        );
-        
-        // Send via Cloudflare Email Workers
-        await env.EMAIL.send(message);
-        
-        return { success: true, recipient };
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(
+            `Resend API error: ${response.status} - ${errorData}`,
+          );
+        }
+
+        const result = await response.json();
+        return { success: true, recipient, id: result.id };
       } catch (error) {
         console.error(`Email error for ${recipient}:`, error);
-        return { success: false, recipient, error };
+        return { success: false, recipient, error: error.message };
       }
     });
-    
+
     // Wait for all emails to complete
     const emailResults = await Promise.all(emailPromises);
-    const successfulEmails = emailResults.filter(result => result.success);
-    
+    const successfulEmails = emailResults.filter((result) => result.success);
+
     if (successfulEmails.length === 0) {
-      throw new Error('All email deliveries failed');
+      throw new Error("All email deliveries failed");
     }
-    
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Application submitted successfully',
-      emailsSent: successfulEmails.length,
-      totalRecipients: emailConfig.recipients.length
-    }), {
-      status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    });
-    
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Application submitted successfully",
+        emailsSent: successfulEmails.length,
+        totalRecipients: emailConfig.recipients.length,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      },
+    );
   } catch (error) {
-    console.error('Form submission error:', error);
-    
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Failed to process application. Please try again later.'
-    }), {
-      status: 500,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
-    });
+    console.error("Form submission error:", error);
+
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Failed to process application. Please try again later.",
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
   }
 }
 
@@ -153,57 +173,22 @@ export async function onRequestOptions() {
   return new Response(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    }
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
   });
 }
 
-// Create raw email message in RFC 5322 format
-function createRawEmail(options: {
-  from: { email: string; name: string };
-  to: string;
-  subject: string;
-  html: string;
-  text: string;
-}): string {
-  const boundary = `boundary_${Date.now()}_${Math.random().toString(36)}`;
-  const date = new Date().toUTCString();
-  const messageId = `<${Date.now()}.${Math.random().toString(36)}@joinmbc.com>`;
-  
-  return `Date: ${date}
-From: ${options.from.name} <${options.from.email}>
-To: <${options.to}>
-Message-ID: ${messageId}
-Subject: ${options.subject}
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="${boundary}"
-
---${boundary}
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-${options.text}
-
---${boundary}
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-${options.html}
-
---${boundary}--`;
-}
-
 function generateEmailHTML(data: FormData): string {
-  const timestamp = new Date().toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  const timestamp = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   return `
@@ -229,68 +214,48 @@ function generateEmailHTML(data: FormData): string {
         <h1>🚀 New Funding Application</h1>
         <p>Received: ${timestamp}</p>
       </div>
-      
+
       <div class="content">
         <div class="urgent">
           <strong>⚡ ACTION REQUIRED:</strong> New lead requires immediate follow-up!
         </div>
-        
+
         <div class="highlight">
           <h2>Business: ${data.businessName}</h2>
-          <p><strong>Funding Amount:</strong> $${Number(data.fundingAmount).toLocaleString()}</p>
+          <p><strong>Desired Amount:</strong> ${data.desiredAmount}</p>
         </div>
-        
+
         <div class="field">
-          <span class="label">👤 Owner Name</span>
-          <div class="value">${data.ownerName}</div>
+          <span class="label">👤 Contact Name</span>
+          <div class="value">${data.contactName}</div>
         </div>
-        
+
         <div class="field">
           <span class="label">📧 Email</span>
           <div class="value"><a href="mailto:${data.email}">${data.email}</a></div>
         </div>
-        
+
         <div class="field">
           <span class="label">📞 Phone</span>
           <div class="value"><a href="tel:${data.phone}">${data.phone}</a></div>
         </div>
-        
+
         <div class="field">
           <span class="label">🏢 Business Type</span>
-          <div class="value">${data.businessType || 'Not specified'}</div>
+          <div class="value">${data.businessType}</div>
         </div>
-        
+
         <div class="field">
-          <span class="label">📍 Business Address</span>
-          <div class="value">${data.businessAddress || 'Not specified'}</div>
+          <span class="label">🌐 Source Page</span>
+          <div class="value">${data.source}</div>
         </div>
-        
+
         <div class="field">
-          <span class="label">⏰ Time in Business</span>
-          <div class="value">${data.timeInBusiness}</div>
-        </div>
-        
-        <div class="field">
-          <span class="label">💳 Credit Score Range</span>
-          <div class="value">${data.creditScore}</div>
-        </div>
-        
-        <div class="field">
-          <span class="label">💰 Monthly Revenue</span>
-          <div class="value">$${Number(data.monthlyRevenue).toLocaleString()}</div>
-        </div>
-        
-        <div class="field">
-          <span class="label">🎯 Use of Funds</span>
-          <div class="value">${data.useOfFunds}</div>
-        </div>
-        
-        <div class="field">
-          <span class="label">📝 Business Description</span>
-          <div class="value">${data.businessDescription}</div>
+          <span class="label">⏰ Submitted</span>
+          <div class="value">${data.timestamp}</div>
         </div>
       </div>
-      
+
       <div class="footer">
         <p><strong>${emailConfig.settings.followUpMessage}</strong></p>
         <p>This application was submitted via the MBC Landing Page</p>
@@ -302,8 +267,8 @@ function generateEmailHTML(data: FormData): string {
 }
 
 function generateEmailText(data: FormData): string {
-  const timestamp = new Date().toLocaleString('en-US', {
-    timeZone: 'America/New_York'
+  const timestamp = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
   });
 
   return `
@@ -314,30 +279,23 @@ function generateEmailText(data: FormData): string {
 BUSINESS DETAILS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Business Name: ${data.businessName}
-Owner Name: ${data.ownerName}
+Contact Name: ${data.contactName}
 Email: ${data.email}
 Phone: ${data.phone}
 
 FUNDING INFORMATION:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Requested Amount: $${Number(data.fundingAmount).toLocaleString()}
-Use of Funds: ${data.useOfFunds}
+Desired Amount: ${data.desiredAmount}
+Business Type: ${data.businessType}
 
-BUSINESS PROFILE:
+SUBMISSION DETAILS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Business Type: ${data.businessType || 'Not specified'}
-Business Address: ${data.businessAddress || 'Not specified'}
-Time in Business: ${data.timeInBusiness}
-Monthly Revenue: $${Number(data.monthlyRevenue).toLocaleString()}
-Credit Score Range: ${data.creditScore}
-
-BUSINESS DESCRIPTION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.businessDescription}
+Source Page: ${data.source}
+Submitted: ${data.timestamp}
 
 ${emailConfig.settings.followUpMessage}
 
 Submitted: ${timestamp}
 Source: MBC Landing Page
   `;
-} 
+}
