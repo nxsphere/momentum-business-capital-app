@@ -180,41 +180,6 @@ export async function onRequestOptions() {
   });
 }
 
-// Create raw email message in RFC 5322 format
-function createRawEmail(options: {
-  from: { email: string; name: string };
-  to: string;
-  subject: string;
-  html: string;
-  text: string;
-}): string {
-  const boundary = `boundary_${Date.now()}_${Math.random().toString(36)}`;
-  const date = new Date().toUTCString();
-  const messageId = `<${Date.now()}.${Math.random().toString(36)}@joinmbc.com>`;
-
-  return `Date: ${date}
-From: ${options.from.name} <${options.from.email}>
-To: <${options.to}>
-Message-ID: ${messageId}
-Subject: ${options.subject}
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="${boundary}"
-
---${boundary}
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-${options.text}
-
---${boundary}
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-${options.html}
-
---${boundary}--`;
-}
-
 function generateEmailHTML(data: FormData): string {
   const timestamp = new Date().toLocaleString("en-US", {
     timeZone: "America/New_York",
@@ -257,12 +222,12 @@ function generateEmailHTML(data: FormData): string {
 
         <div class="highlight">
           <h2>Business: ${data.businessName}</h2>
-          <p><strong>Funding Amount:</strong> $${Number(data.fundingAmount).toLocaleString()}</p>
+          <p><strong>Desired Amount:</strong> ${data.desiredAmount}</p>
         </div>
 
         <div class="field">
-          <span class="label">👤 Owner Name</span>
-          <div class="value">${data.ownerName}</div>
+          <span class="label">👤 Contact Name</span>
+          <div class="value">${data.contactName}</div>
         </div>
 
         <div class="field">
@@ -277,37 +242,17 @@ function generateEmailHTML(data: FormData): string {
 
         <div class="field">
           <span class="label">🏢 Business Type</span>
-          <div class="value">${data.businessType || "Not specified"}</div>
+          <div class="value">${data.businessType}</div>
         </div>
 
         <div class="field">
-          <span class="label">📍 Business Address</span>
-          <div class="value">${data.businessAddress || "Not specified"}</div>
+          <span class="label">🌐 Source Page</span>
+          <div class="value">${data.source}</div>
         </div>
 
         <div class="field">
-          <span class="label">⏰ Time in Business</span>
-          <div class="value">${data.timeInBusiness}</div>
-        </div>
-
-        <div class="field">
-          <span class="label">💳 Credit Score Range</span>
-          <div class="value">${data.creditScore}</div>
-        </div>
-
-        <div class="field">
-          <span class="label">💰 Monthly Revenue</span>
-          <div class="value">$${Number(data.monthlyRevenue).toLocaleString()}</div>
-        </div>
-
-        <div class="field">
-          <span class="label">🎯 Use of Funds</span>
-          <div class="value">${data.useOfFunds}</div>
-        </div>
-
-        <div class="field">
-          <span class="label">📝 Business Description</span>
-          <div class="value">${data.businessDescription}</div>
+          <span class="label">⏰ Submitted</span>
+          <div class="value">${data.timestamp}</div>
         </div>
       </div>
 
@@ -334,26 +279,19 @@ function generateEmailText(data: FormData): string {
 BUSINESS DETAILS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Business Name: ${data.businessName}
-Owner Name: ${data.ownerName}
+Contact Name: ${data.contactName}
 Email: ${data.email}
 Phone: ${data.phone}
 
 FUNDING INFORMATION:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Requested Amount: $${Number(data.fundingAmount).toLocaleString()}
-Use of Funds: ${data.useOfFunds}
+Desired Amount: ${data.desiredAmount}
+Business Type: ${data.businessType}
 
-BUSINESS PROFILE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Business Type: ${data.businessType || "Not specified"}
-Business Address: ${data.businessAddress || "Not specified"}
-Time in Business: ${data.timeInBusiness}
-Monthly Revenue: $${Number(data.monthlyRevenue).toLocaleString()}
-Credit Score Range: ${data.creditScore}
-
-BUSINESS DESCRIPTION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.businessDescription}
+SUBMISSION DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━��━━━━━━━━━━━━━━━━━
+Source Page: ${data.source}
+Submitted: ${data.timestamp}
 
 ${emailConfig.settings.followUpMessage}
 
