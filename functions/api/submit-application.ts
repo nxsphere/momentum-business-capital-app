@@ -1,14 +1,7 @@
 import { emailConfig } from "../config";
 
-// Type declarations for Cloudflare Email Workers
-declare class EmailMessage {
-  constructor(from: string, to: string, raw: string);
-}
-
 interface CloudflareEnv {
-  EMAIL: {
-    send(message: EmailMessage): Promise<void>;
-  };
+  RESEND_API_KEY: string;
 }
 
 interface FormData {
@@ -335,7 +328,7 @@ function generateEmailText(data: FormData): string {
 ⚡ ACTION REQUIRED: This lead requires immediate follow-up!
 
 BUSINESS DETAILS:
-━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Business Name: ${data.businessName}
 Owner Name: ${data.ownerName}
 Email: ${data.email}
