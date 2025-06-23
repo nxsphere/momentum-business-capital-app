@@ -25,9 +25,6 @@ interface ApplicationFormProps {
   formData: FormData;
   handleInputChange: (field: string, value: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  isDialogOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
-  docusignUrl: string;
 }
 
 const ApplicationForm = ({
