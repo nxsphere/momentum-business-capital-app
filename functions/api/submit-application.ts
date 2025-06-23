@@ -36,10 +36,11 @@ export async function onRequestPost(context: {
     // Validate required fields
     const requiredFields = [
       "businessName",
-      "ownerName",
+      "contactName",
       "email",
       "phone",
-      "fundingAmount",
+      "businessType",
+      "desiredAmount",
     ];
     for (const field of requiredFields) {
       if (!formData[field]) {
@@ -334,7 +335,7 @@ function generateEmailText(data: FormData): string {
 ⚡ ACTION REQUIRED: This lead requires immediate follow-up!
 
 BUSINESS DETAILS:
-━━━━━━━━━━━━━━━━━━��━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Business Name: ${data.businessName}
 Owner Name: ${data.ownerName}
 Email: ${data.email}
