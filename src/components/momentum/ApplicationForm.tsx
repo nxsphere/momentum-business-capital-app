@@ -243,9 +243,17 @@ const ApplicationForm = ({
                 <Button
                   type="button"
                   onClick={handleFormSubmission}
+                  disabled={isSubmitting}
                   className="momentum-cta-button w-full text-xl py-6 mt-8"
                 >
-                  Submit Application
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting Application...
+                    </>
+                  ) : (
+                    "Submit Application"
+                  )}
                 </Button>
 
                 <p className="text-momentum-gray text-center leading-relaxed">
