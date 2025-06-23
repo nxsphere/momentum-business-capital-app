@@ -214,50 +214,6 @@ const ApplicationForm = ({
                   Submit Application
                 </Button>
 
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <div style={{ display: "none" }} />
-                  </DialogTrigger>
-                  <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0">
-                    <DialogHeader className="p-6 pb-2">
-                      <DialogTitle className="text-2xl font-bold text-momentum-navy">
-                        Complete Your Application
-                      </DialogTitle>
-                      <DialogDescription className="text-momentum-gray">
-                        Please complete the DocuSign form to finalize your
-                        funding application.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex-1 px-6 pb-6 relative">
-                      {isIframeLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg z-10">
-                          <div className="flex flex-col items-center space-y-4">
-                            <Loader2 className="h-12 w-12 animate-spin text-momentum-navy" />
-                            <div className="text-center">
-                              <p className="text-momentum-navy font-medium text-lg">
-                                Loading DocuSign...
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <iframe
-                        src={docusignUrl}
-                        className="w-full h-[calc(95vh-120px)] border-0 rounded-lg"
-                        title="DocuSign Application Form"
-                        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation allow-presentation allow-downloads"
-                        allow="geolocation 'none'; microphone 'none'; camera 'none'"
-                        onLoad={() => setIsIframeLoading(false)}
-                        onError={() => {
-                          console.error("DocuSign iframe failed to load");
-                          setIsIframeLoading(false);
-                        }}
-                        referrerPolicy="strict-origin-when-cross-origin"
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
                 <p className="text-momentum-gray text-center leading-relaxed">
                   By submitting this form, you agree to our terms and privacy
                   policy. A representative will contact you within 24 Business
