@@ -1,26 +1,32 @@
-// Email configuration for form submissions
+// Email configuration for the application
 export const emailConfig = {
-  // Recipients for form notifications
-  recipients: [
-    "leads@momentumbusinesscapital.com"
-  ],
-  
-  // Sender information
+  // Production recipient: The primary email address to receive notifications.
+  // You can set this in Cloudflare dashboard as NOTIFICATION_EMAIL secret
+  to: "leads@momentumbusiness.capital",
+
+  // Development recipient: Used for testing in non-production environments.
+  devTo: "dev-leads@momentumbusiness.capital",
+
+  // Recipients array (maintaining backward compatibility)
+  recipients: ["leads@momentumbusiness.capital"],
+
+  // Sender address: This will be managed by Resend
   from: {
-    email: "support@joinmbc.com",
-    name: "MBC Landing Page"
+    email: "noreply@momentumbusiness.capital",
+    name: "Momentum Business Capital Applications",
   },
-  
-  // Email templates
-  subject: (businessName: string) => `🚀 New Lead: Funding Application from ${businessName}`,
-  
-  // Email content settings
+
+  // Subject line for the notification email.
+  subject: (businessName: string) => `🚀 New Funding Application Lead Received`,
+
+  // Additional settings for email content.
   settings: {
     includeTimestamp: true,
     includeSource: true,
-    followUpMessage: "Please follow up with this lead as soon as possible."
-  }
+    // A message to encourage prompt follow-up on the new lead.
+    followUpMessage: "Let's turn this lead into a success story!",
+  },
 };
 
 // Export type for TypeScript
-export type EmailConfig = typeof emailConfig; 
+export type EmailConfig = typeof emailConfig;
