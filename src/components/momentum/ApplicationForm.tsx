@@ -35,13 +35,15 @@ const ApplicationForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleFormSubmission = async () => {
+  const handleFormSubmission = () => {
     // Validate form data
     if (
       !formData.businessName ||
       !formData.contactName ||
       !formData.email ||
-      !formData.phone
+      !formData.phone ||
+      !formData.businessType ||
+      !formData.desiredAmount
     ) {
       toast({
         title: "Missing Information",
@@ -51,39 +53,15 @@ const ApplicationForm = ({
       return;
     }
 
-    setIsSubmitting(true);
+    // Open DocuSign PowerForms URL in new tab
+    const docusignUrl =
+      "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
+    window.open(docusignUrl, "_blank", "noopener,noreferrer");
 
-    try {
-      const submissionData: FormSubmissionData = {
-        ...formData,
-        timestamp: new Date().toISOString(),
-        source: window.location.pathname.includes("funding-1")
-          ? "funding-1"
-          : "funding-2",
-      };
-
-      const result = await submitApplicationForm(submissionData);
-
-      if (result.success) {
-        // Open DocuSign after successful submission
-        setIsIframeLoading(true); // Reset loading state when opening dialog
-        setIsDialogOpen(true);
-      } else {
-        toast({
-          title: "Submission Failed",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    toast({
+      title: "Redirecting to Application",
+      description: "Opening DocuSign application form in a new tab.",
+    });
   };
 
   return (
