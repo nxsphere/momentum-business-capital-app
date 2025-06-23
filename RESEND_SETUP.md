@@ -41,13 +41,13 @@ Set up the required secrets in your Cloudflare Workers:
 # Set the Resend API key (replace with your actual key)
 wrangler secret put RESEND_API_KEY
 # When prompted, enter your Resend API key (re_xxxxxxxx)
-
-# Set the notification email (optional, uses config default if not set)
-wrangler secret put NOTIFICATION_EMAIL
-# When prompted, enter: leads@momentumbusiness.capital
 ```
 
 ## Step 4: Environment Configuration
+
+Email recipients are now configured in the code (`src/worker/config/email.ts`):
+- **Production**: `leads@momentumbusiness.capital`
+- **Development**: `dev-leads@momentumbusiness.capital`
 
 Update `wrangler.toml` for production:
 
@@ -113,7 +113,6 @@ The email includes:
 | Variable | Description | Required | Example |
 |----------|-------------|----------|---------|
 | `RESEND_API_KEY` | Your Resend API key | Yes | `re_xxxxxxxx` |
-| `NOTIFICATION_EMAIL` | Override recipient email | No | `leads@momentumbusiness.capital` |
 | `ENVIRONMENT` | Environment mode | No | `production` |
 
 ## Troubleshooting
@@ -127,7 +126,7 @@ The email includes:
 
 2. **Email not received**:
    - Check spam folder
-   - Verify recipient email is correct
+   - Verify recipient email is correct in config file
    - Check Resend dashboard logs
 
 3. **CORS errors**:
@@ -153,7 +152,6 @@ curl https://momentum-business-capital-landing.shy-math-4d31.workers.dev/api/hea
 - [ ] Domain verified in Resend
 - [ ] API key generated and secured
 - [ ] Cloudflare secrets configured
-- [ ] Environment set to "production"
 - [ ] Application deployed
 - [ ] Email functionality tested
 - [ ] Form submission tested
@@ -169,4 +167,4 @@ curl https://momentum-business-capital-landing.shy-math-4d31.workers.dev/api/hea
 - ✅ API keys are stored as encrypted secrets in Cloudflare
 - ✅ CORS is configured to prevent unauthorized requests
 - ✅ Form validation prevents incomplete submissions
-- ✅ Error handling provides user-friendly messages 
+- ✅ Error handling provides user-friendly messages

@@ -34,9 +34,5 @@ vars = { ENVIRONMENT = "production" }
 directory = "./dist/client"
 binding = "ASSETS"
 
-# Environment variables (optional)
-# NOTIFICATION_EMAIL will be set as a secret
-
-# Secrets (manage via dashboard or wrangler secret put)
-# RESEND_API_KEY = "your-resend-api-key"
-# NOTIFICATION_EMAIL = "leads@momentumbusiness.capital" 
+# Secrets are managed via GitHub Actions and wrangler secret put commands:
+# RESEND_API_KEY = "your-resend-api-key" 

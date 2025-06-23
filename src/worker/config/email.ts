@@ -1,7 +1,6 @@
 // Email configuration for the application
 export const emailConfig = {
   // Production recipient: The primary email address to receive notifications.
-  // You can set this in Cloudflare dashboard as NOTIFICATION_EMAIL secret
   to: 'leads@momentumbusiness.capital',
 
   // Development recipient: Used for testing in non-production environments.
