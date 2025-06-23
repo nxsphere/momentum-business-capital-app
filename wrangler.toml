@@ -8,9 +8,29 @@ compatibility_flags = ["nodejs_compat"]
 directory = "./dist/client"
 binding = "ASSETS"
 
-# Environment variables (optional)
+# Default environment (production)
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
+
+# Development environment
+[env.dev]
+name = "momentum-business-capital-app-dev"
+vars = { ENVIRONMENT = "development" }
+
+[env.dev.assets]
+directory = "./dist/client"
+binding = "ASSETS"
+
+# Production environment  
+[env.production]
+name = "momentum-business-capital-landing"
+vars = { ENVIRONMENT = "production" }
+
+[env.production.assets]
+directory = "./dist/client"
+binding = "ASSETS"
+
+# Environment variables (optional)
 # NOTIFICATION_EMAIL will be set as a secret
 
 # Secrets (manage via dashboard or wrangler secret put)

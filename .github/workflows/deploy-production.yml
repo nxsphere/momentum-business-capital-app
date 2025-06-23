@@ -1,0 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production Environment
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Deploy to Cloudflare Workers (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_PROD }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL_PROD }}
+
+      - name: Create deployment notification
+        run: |
+          echo "🎉 Production deployment successful!" 
+          echo "Live URL: https://momentum-business-capital-landing.shy-math-4d31.workers.dev"
+          echo "Deployed from commit: ${{ github.sha }}" 
