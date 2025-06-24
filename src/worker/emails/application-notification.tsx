@@ -100,7 +100,7 @@ export const ApplicationNotificationTemplate: React.FC<Readonly<ApplicationNotif
       boxSizing: 'border-box'
     }}>
       <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '1px solid #ddd', paddingBottom: '20px' }}>
-        <img src="https://momentumbusiness.capital/assets/favicon.png" alt="Momentum Business Capital Logo" style={{ width: '60px', height: '60px' }} />
+        <img src="https://mailsend-email-assets.mailtrap.io/oyc2fu7yrhzxvf83rtkcl6rg1zwq.png" alt="Momentum Business Capital Logo" style={{ width: '150px', height: 'auto' }} />
       </div>
 
       <div className="header-section" style={{ 
