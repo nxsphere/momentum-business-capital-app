@@ -94,7 +94,7 @@ curl -X POST https://momentum-business-capital-landing.shy-math-4d31.workers.dev
 
 The application is configured to send emails with:
 
-- **From**: `Momentum Business Capital Applications <noreply@momentumbusiness.capital>`
+- **From**: `Momentum Business Capital Applications <landingpage@momentumbusiness.capital>`
 - **To**: `leads@momentumbusiness.capital` (production) or `dev-leads@momentumbusiness.capital` (development)
 - **Subject**: `🚀 New Funding Application Lead Received`
 
