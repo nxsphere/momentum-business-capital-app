@@ -27,15 +27,34 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install
 
-      - name: Build application
-        run: npm run build
+      - name: Build application for development
+        run: npm run build:dev
+        env:
+          NODE_ENV: development
+
+      - name: Update wrangler config for dev environment
+        run: |
+          # Update the generated wrangler.json to use dev worker name
+          cd dist
+          if [ -f wrangler.json ]; then
+            # Use node to update the JSON file
+            node -e "
+              const fs = require('fs');
+              const config = JSON.parse(fs.readFileSync('wrangler.json', 'utf8'));
+              config.name = 'momentum-business-capital-app-dev';
+              config.vars = config.vars || {};
+              config.vars.ENVIRONMENT = 'development';
+              fs.writeFileSync('wrangler.json', JSON.stringify(config, null, 2));
+            "
+          fi
 
       - name: Deploy to Cloudflare Workers (Dev)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env dev
+          command: deploy
+          workingDirectory: './dist'
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_DEV }}
 
