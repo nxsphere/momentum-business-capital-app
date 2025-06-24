@@ -78,17 +78,17 @@ const ApplicationForm = ({
         // Show success message first
         toast({
           title: "Application Submitted Successfully!",
-          description: "Your information has been sent and DocuSign is opening in a new tab.",
-          duration: 5000, // Show for 5 seconds
+          description: "Your information has been sent. Redirecting to DocuSign to complete your application...",
+          duration: 3000, // Show for 3 seconds
         });
 
-        // Small delay before opening DocuSign to ensure user sees the message
+        // Small delay before redirecting to DocuSign to ensure user sees the message
         setTimeout(() => {
-          // Open DocuSign PowerForms URL in new tab after successful submission
+          // Redirect to DocuSign PowerForms URL on the same page
           const docusignUrl =
             "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
-          window.open(docusignUrl, "_blank", "noopener,noreferrer");
-        }, 1000); // 1 second delay
+          window.location.href = docusignUrl;
+        }, 3000); // 3 second delay to allow toast to be seen
 
         // Reset form after successful submission
         Object.keys(formData).forEach(key => {
