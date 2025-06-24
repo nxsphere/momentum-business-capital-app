@@ -20,18 +20,40 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Clear npm cache and install dependencies
+        run: |
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
+          npm install
 
-      - name: Build application
+      - name: Build application for production
         run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Update wrangler config for production environment
+        run: |
+          # Update the generated wrangler.json to use production worker name
+          cd dist
+          if [ -f wrangler.json ]; then
+            # Use node to update the JSON file
+            node -e "
+              const fs = require('fs');
+              const config = JSON.parse(fs.readFileSync('wrangler.json', 'utf8'));
+              config.name = 'momentum-business-capital-landing';
+              config.vars = config.vars || {};
+              config.vars.ENVIRONMENT = 'production';
+              fs.writeFileSync('wrangler.json', JSON.stringify(config, null, 2));
+            "
+          fi
 
       - name: Deploy to Cloudflare Workers (Production)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production
+          command: deploy
+          workingDirectory: './dist'
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY_PROD }}
 

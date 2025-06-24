@@ -99,6 +99,10 @@ export const ApplicationNotificationTemplate: React.FC<Readonly<ApplicationNotif
       width: '100%',
       boxSizing: 'border-box'
     }}>
+      <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '1px solid #ddd', paddingBottom: '20px' }}>
+        <img src="https://momentumbusiness.capital/assets/favicon.png" alt="Momentum Business Capital Logo" style={{ width: '60px', height: '60px' }} />
+      </div>
+
       <div className="header-section" style={{ 
         backgroundColor: '#1e40af', 
         color: 'white', 

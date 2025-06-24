@@ -33,6 +33,7 @@ const ApplicationForm = ({
   handleSubmit,
 }: ApplicationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
 
   const handleFormSubmission = async () => {
@@ -75,25 +76,28 @@ const ApplicationForm = ({
       const result = await response.json();
 
       if (result.success) {
-        // Show success message first
+        // Show success state in the form container
+        setIsSuccess(true);
+        
+        // Also show toast notification
         toast({
           title: "Application Submitted Successfully!",
-          description: "Your information has been sent. Redirecting to DocuSign to complete your application...",
-          duration: 3000, // Show for 3 seconds
+          description: "Your information has been sent. You will be redirected to DocuSign shortly.",
+          duration: 5000, // Show for 5 seconds
         });
-
-        // Small delay before redirecting to DocuSign to ensure user sees the message
-        setTimeout(() => {
-          // Redirect to DocuSign PowerForms URL on the same page
-          const docusignUrl =
-            "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
-          window.location.href = docusignUrl;
-        }, 3000); // 3 second delay to allow toast to be seen
 
         // Reset form after successful submission
         Object.keys(formData).forEach(key => {
           handleInputChange(key, '');
         });
+
+        // Redirect after 2 seconds to allow user to see success message
+        setTimeout(() => {
+          // Redirect to DocuSign PowerForms URL in the same tab after successful submission
+          const docusignUrl =
+            "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
+          window.location.href = docusignUrl;
+        }, 2000); // 2 second delay
       } else {
         toast({
           title: "Submission Failed",
@@ -128,7 +132,23 @@ const ApplicationForm = ({
 
           <Card className="momentum-card">
             <CardContent className="p-10">
-              <form onSubmit={handleSubmit} className="space-y-8">
+              {isSuccess ? (
+                <div className="text-center py-12">
+                  <div className="flex justify-center mb-6">
+                    <Loader2 className="h-16 w-16 animate-spin text-momentum-navy" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-momentum-navy mb-4">
+                    Application Submitted Successfully!
+                  </h3>
+                  <p className="text-lg text-momentum-gray mb-4">
+                    Your information has been sent and you will be redirected to DocuSign shortly.
+                  </p>
+                  <div className="text-sm text-momentum-gray">
+                    Please wait while we redirect you...
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-lg font-semibold text-momentum-navy mb-3">
@@ -277,6 +297,7 @@ const ApplicationForm = ({
                   hours.
                 </p>
               </form>
+              )}
             </CardContent>
           </Card>
         </div>
