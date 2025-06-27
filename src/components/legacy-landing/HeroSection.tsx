@@ -1,32 +1,8 @@
-import React, { useState } from 'react';
-import { ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import React from 'react';
+import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-interface HeroSectionProps {
-  isDialogOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
-  docusignUrl: string;
-}
-
-const HeroSection = ({
-  isDialogOpen,
-  setIsDialogOpen,
-  docusignUrl
-}: HeroSectionProps) => {
-  const [isIframeLoading, setIsIframeLoading] = useState(true);
-
-  const handleIframeLoad = () => {
-    setIsIframeLoading(false);
-  };
-
-  const handleDialogOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
-    if (open) {
-      setIsIframeLoading(true);
-    }
-  };
-
+const HeroSection = () => {
   return (
     <section className="bg-[#3b3b3b] text-white py-20 lg:py-32">
       <div className="container mx-auto px-4">
@@ -59,38 +35,17 @@ const HeroSection = ({
               </div>
             </div>
 
-            <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#54b64e] hover:bg-[#4a9d45] text-white text-xl font-bold py-6 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group">
-                  Apply Now - Get Approved Today!
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0">
-                <DialogHeader className="p-6 pb-2">
-                  <DialogTitle className="text-2xl font-bold text-[#3b3b3b]">
-                    Complete Your Application
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="flex-1 px-6 pb-6 relative">
-                  {isIframeLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg">
-                      <div className="flex flex-col items-center space-y-4">
-                        <Loader2 className="h-8 w-8 animate-spin text-[#54b64e]" />
-                        <p className="text-[#3b3b3b] font-medium">Loading application form...</p>
-                      </div>
-                    </div>
-                  )}
-                  <iframe 
-                    src={docusignUrl} 
-                    className="w-full h-[calc(95vh-120px)] border-0 rounded-lg" 
-                    title="DocuSign Application Form" 
-                    sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
-                    onLoad={handleIframeLoad}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button 
+              className="bg-[#54b64e] hover:bg-[#4a9d45] text-white text-xl font-bold py-6 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              onClick={() => {
+                const applicationSection = document.querySelector("#application");
+                if (applicationSection) {
+                  applicationSection.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              Apply Now - Get Approved Today!
+            </Button>
           </div>
 
           {/* Right Column - Visual */}

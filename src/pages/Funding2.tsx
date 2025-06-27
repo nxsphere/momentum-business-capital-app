@@ -1,8 +1,5 @@
-import LegacyMomentumLanding from '@/components/legacy-landing/LegacyMomentumLanding';
-import '@/components/legacy-landing/styles.css';
+import CreativeLanding from '../components/CreativeLanding';
 
-const Funding2 = () => {
-  return <LegacyMomentumLanding />;
-};
-
-export default Funding2; 
+export default function Funding2() {
+  return <CreativeLanding />;
+} 

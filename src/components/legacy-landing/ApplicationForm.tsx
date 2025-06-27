@@ -1,37 +1,123 @@
-import React, { useState } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2, ArrowRight } from "lucide-react";
+
+interface FormData {
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  desiredAmount: string;
+}
 
 interface ApplicationFormProps {
-  formData: any;
+  formData: FormData;
   handleInputChange: (field: string, value: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  isDialogOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
-  docusignUrl: string;
 }
 
 const ApplicationForm = ({ 
-  isDialogOpen, 
-  setIsDialogOpen, 
-  docusignUrl 
+  formData,
+  handleInputChange,
+  handleSubmit
 }: ApplicationFormProps) => {
-  const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const { toast } = useToast();
 
-  const handleIframeLoad = () => {
-    setIsIframeLoading(false);
-  };
+  const handleFormSubmission = async () => {
+    // Validate form data
+    if (
+      !formData.businessName ||
+      !formData.contactName ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.businessType ||
+      !formData.desiredAmount
+    ) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handleDialogOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
-    if (open) {
-      setIsIframeLoading(true);
+    setIsSubmitting(true);
+
+    try {
+      // Prepare form data for API submission
+      const submissionData = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+        source: "funding-2",
+      };
+
+      // Send data to our API endpoint
+      const response = await fetch('/api/submit-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Show success state in the form container
+        setIsSuccess(true);
+        
+        // Also show toast notification
+        toast({
+          title: "Application Submitted Successfully!",
+          description: "Your information has been sent. You will be redirected to DocuSign shortly.",
+          duration: 5000,
+        });
+
+        // Reset form after successful submission
+        Object.keys(formData).forEach(key => {
+          handleInputChange(key, '');
+        });
+
+        // Redirect after 2 seconds to DocuSign
+        setTimeout(() => {
+          const docusignUrl =
+            "https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586";
+          window.location.href = docusignUrl;
+        }, 2000);
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: result.message || "Failed to submit application. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Connection Error",
+        description: "Unable to submit application. Please check your connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <section className="py-20 bg-[#3b3b3b]">
+    <section id="application" className="py-20 bg-[#3b3b3b]">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="space-y-8">
@@ -44,53 +130,170 @@ const ApplicationForm = ({
             </p>
 
             <div className="bg-white rounded-2xl p-8 lg:p-12 shadow-2xl">
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-[#3b3b3b] mb-4">Start Your Application</h3>
-                  <p className="text-gray-600 mb-8">
-                    Complete our secure form and get a decision within 24 hours
+              {isSuccess ? (
+                <div className="text-center py-12">
+                  <div className="flex justify-center mb-6">
+                    <Loader2 className="h-16 w-16 animate-spin text-[#54b64e]" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#3b3b3b] mb-4">
+                    Application Submitted Successfully!
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-4">
+                    Your information has been sent and you will be redirected to DocuSign shortly.
                   </p>
+                  <div className="text-sm text-gray-500">
+                    Please wait while we redirect you...
+                  </div>
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-[#3b3b3b] mb-4">Start Your Application</h3>
+                    <p className="text-gray-600 mb-8">
+                      Complete our secure form and get a decision within 24 hours
+                    </p>
+                  </div>
 
-                <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#54b64e] hover:bg-[#4a9d45] text-white text-2xl font-bold py-8 px-16 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group w-full lg:w-auto">
-                      Start Application Now
-                      <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0">
-                    <DialogHeader className="p-6 pb-2">
-                      <DialogTitle className="text-2xl font-bold text-[#3b3b3b]">
-                        Complete Your Application
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 px-6 pb-6 relative">
-                      {isIframeLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg">
-                          <div className="flex flex-col items-center space-y-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#54b64e]" />
-                            <p className="text-[#3b3b3b] font-medium">Loading application form...</p>
-                          </div>
-                        </div>
-                      )}
-                      <iframe 
-                        src={docusignUrl} 
-                        className="w-full h-[calc(95vh-120px)] border-0 rounded-lg" 
-                        title="DocuSign Application Form" 
-                        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation"
-                        onLoad={handleIframeLoad}
-                      />
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Business Name *
+                        </label>
+                        <Input
+                          type="text"
+                          required
+                          value={formData.businessName}
+                          onChange={(e) =>
+                            handleInputChange("businessName", e.target.value)
+                          }
+                          className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl"
+                          placeholder="Your Business Name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Contact Name *
+                        </label>
+                        <Input
+                          type="text"
+                          required
+                          value={formData.contactName}
+                          onChange={(e) =>
+                            handleInputChange("contactName", e.target.value)
+                          }
+                          className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl"
+                          placeholder="Your Full Name"
+                        />
+                      </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm text-gray-600 mt-8">
-                  <div>✓ Secure SSL Encrypted</div>
-                  <div>✓ No Hidden Fees</div>
-                  <div>✓ Fast Approval</div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Email *
+                        </label>
+                        <Input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
+                          className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl"
+                          placeholder="your@email.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Phone *
+                        </label>
+                        <Input
+                          type="tel"
+                          required
+                          value={formData.phone}
+                          onChange={(e) =>
+                            handleInputChange("phone", e.target.value)
+                          }
+                          className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl"
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Business Type *
+                        </label>
+                        <Select 
+                          value={formData.businessType} 
+                          onValueChange={(value) => handleInputChange("businessType", value)}
+                        >
+                          <SelectTrigger className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl">
+                            <SelectValue placeholder="Select Business Type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="retail">Retail</SelectItem>
+                            <SelectItem value="restaurant">Restaurant</SelectItem>
+                            <SelectItem value="service">Service</SelectItem>
+                            <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                            <SelectItem value="construction">Construction</SelectItem>
+                            <SelectItem value="healthcare">Healthcare</SelectItem>
+                            <SelectItem value="technology">Technology</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-lg font-semibold text-[#3b3b3b] mb-3 text-left">
+                          Desired Amount *
+                        </label>
+                        <Select 
+                          value={formData.desiredAmount} 
+                          onValueChange={(value) => handleInputChange("desiredAmount", value)}
+                        >
+                          <SelectTrigger className="w-full h-12 text-lg border-2 border-gray-200 focus:border-[#54b64e] rounded-xl">
+                            <SelectValue placeholder="Select Amount" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="7500-25000">$7,500 - $25,000</SelectItem>
+                            <SelectItem value="25000-50000">$25,000 - $50,000</SelectItem>
+                            <SelectItem value="50000-100000">$50,000 - $100,000</SelectItem>
+                            <SelectItem value="100000-150000">$100,000 - $150,000</SelectItem>
+                            <SelectItem value="150000+">$150,000+</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleFormSubmission}
+                      disabled={isSubmitting}
+                      className="bg-[#54b64e] hover:bg-[#4a9d45] text-white text-2xl font-bold py-8 px-16 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group w-full lg:w-auto"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          Submit Application
+                          <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm text-gray-600 mt-8">
+                    <div>✓ Secure SSL Encrypted</div>
+                    <div>✓ No Hidden Fees</div>
+                    <div>✓ Fast Approval</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

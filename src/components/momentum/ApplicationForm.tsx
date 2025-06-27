@@ -118,29 +118,29 @@ const ApplicationForm = ({
   };
 
   return (
-    <section id="application" className="py-20 section-gradient">
+    <section id="application" className="py-12 md:py-16 lg:py-20 section-gradient">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-momentum-navy mb-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-momentum-navy mb-4 md:mb-6 px-4">
               Apply for Funding
             </h2>
-            <p className="text-xl text-momentum-gray">
-              Get your approval in as little as 24 hours
+            <p className="text-lg md:text-xl text-momentum-gray mb-6 md:mb-8 px-4">
+              Get approved in as little as 24 hours
             </p>
           </div>
 
           <Card className="momentum-card">
-            <CardContent className="p-10">
+            <CardContent className="p-6 md:p-8 lg:p-10">
               {isSuccess ? (
-                <div className="text-center py-12">
+                <div className="text-center py-8 md:py-12">
                   <div className="flex justify-center mb-6">
-                    <Loader2 className="h-16 w-16 animate-spin text-momentum-navy" />
+                    <Loader2 className="h-12 w-12 md:h-16 md:w-16 animate-spin text-momentum-navy" />
                   </div>
-                  <h3 className="text-2xl font-bold text-momentum-navy mb-4">
+                  <h3 className="text-xl md:text-2xl font-bold text-momentum-navy mb-4">
                     Application Submitted Successfully!
                   </h3>
-                  <p className="text-lg text-momentum-gray mb-4">
+                  <p className="text-base md:text-lg text-momentum-gray mb-4 px-4">
                     Your information has been sent and you will be redirected to DocuSign shortly.
                   </p>
                   <div className="text-sm text-momentum-gray">
@@ -148,10 +148,10 @@ const ApplicationForm = ({
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-8">
+                <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Business Name *
                     </label>
                     <Input
@@ -161,12 +161,12 @@ const ApplicationForm = ({
                       onChange={(e) =>
                         handleInputChange("businessName", e.target.value)
                       }
-                      className="w-full h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
+                        className="w-full h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
                       placeholder="Your Business Name"
                     />
                   </div>
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Contact Name *
                     </label>
                     <Input
@@ -176,15 +176,15 @@ const ApplicationForm = ({
                       onChange={(e) =>
                         handleInputChange("contactName", e.target.value)
                       }
-                      className="w-full h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
+                        className="w-full h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
                       placeholder="Your Full Name"
                     />
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Email *
                     </label>
                     <Input
@@ -194,12 +194,12 @@ const ApplicationForm = ({
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
-                      className="w-full h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
+                        className="w-full h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
                       placeholder="your@email.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Phone *
                     </label>
                     <Input
@@ -209,15 +209,15 @@ const ApplicationForm = ({
                       onChange={(e) =>
                         handleInputChange("phone", e.target.value)
                       }
-                      className="w-full h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
+                        className="w-full h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl"
                       placeholder="(555) 123-4567"
                     />
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Business Type *
                     </label>
                     <Select
@@ -226,7 +226,7 @@ const ApplicationForm = ({
                         handleInputChange("businessType", value)
                       }
                     >
-                      <SelectTrigger className="h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl">
+                        <SelectTrigger className="h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl">
                         <SelectValue placeholder="Select business type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -244,7 +244,7 @@ const ApplicationForm = ({
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-lg font-semibold text-momentum-navy mb-3">
+                      <label className="block text-base md:text-lg font-semibold text-momentum-navy mb-2 md:mb-3">
                       Desired Amount *
                     </label>
                     <Select
@@ -253,7 +253,7 @@ const ApplicationForm = ({
                         handleInputChange("desiredAmount", value)
                       }
                     >
-                      <SelectTrigger className="h-12 text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl">
+                        <SelectTrigger className="h-11 md:h-12 text-base md:text-lg border-2 border-gray-200 focus:border-momentum-navy rounded-xl">
                         <SelectValue placeholder="Select amount range" />
                       </SelectTrigger>
                       <SelectContent>
@@ -279,7 +279,7 @@ const ApplicationForm = ({
                   type="button"
                   onClick={handleFormSubmission}
                   disabled={isSubmitting}
-                  className="momentum-cta-button w-full text-xl py-6 mt-8"
+                    className="momentum-cta-button w-full text-lg md:text-xl py-4 md:py-6 mt-6 md:mt-8"
                 >
                   {isSubmitting ? (
                     <>
@@ -291,7 +291,7 @@ const ApplicationForm = ({
                   )}
                 </Button>
 
-                <p className="text-momentum-gray text-center leading-relaxed">
+                  <p className="text-momentum-gray text-center leading-relaxed text-sm md:text-base px-4">
                   By submitting this form, you agree to our terms and privacy
                   policy. A representative will contact you within 24 Business
                   hours.

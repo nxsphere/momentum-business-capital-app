@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <img 
-              src="/assets/favicon.png" 
+              src="/assets/og-image.png" 
               alt="Momentum Business Capital" 
               className="h-12 w-auto mb-6 filter brightness-0 invert" 
             />
@@ -25,12 +25,21 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-[#54b64e]" />
-                <span>(800) 839-8066</span>
+                <span>(305) 307-5217</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-[#54b64e]" />
                 <span>info@momentumbusinesscapital.com</span>
               </div>
+              <a 
+                href="https://www.linkedin.com/company/momentum-business-capital/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors"
+              >
+                <Linkedin className="h-4 w-4 text-[#54b64e]" />
+                <span>Follow us on LinkedIn</span>
+              </a>
             </div>
           </div>
 
