@@ -1881,7 +1881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toast@npm:^1.2.1":
+"@radix-ui/react-toast@npm:^1.2.14":
   version: 1.2.14
   resolution: "@radix-ui/react-toast@npm:1.2.14"
   dependencies:
@@ -6260,7 +6260,7 @@ __metadata:
     "@radix-ui/react-slot": "npm:^1.1.0"
     "@radix-ui/react-switch": "npm:^1.1.0"
     "@radix-ui/react-tabs": "npm:^1.1.0"
-    "@radix-ui/react-toast": "npm:^1.2.1"
+    "@radix-ui/react-toast": "npm:^1.2.14"
     "@radix-ui/react-toggle": "npm:^1.1.0"
     "@radix-ui/react-toggle-group": "npm:^1.1.0"
     "@radix-ui/react-tooltip": "npm:^1.1.4"
