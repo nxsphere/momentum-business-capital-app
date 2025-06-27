@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import Funding2 from "./pages/Funding2";
+import FundingComplete from "./pages/FundingComplete";
 import NotFound from "./pages/NotFound";
 import { Navigate } from "react-router-dom";
 
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/funding-1" replace />} />
             <Route path="/funding-1" element={<Index />} />
             <Route path="/funding-2" element={<Funding2 />} />
+            <Route path="/funding-complete" element={<FundingComplete />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

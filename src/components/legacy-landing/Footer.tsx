@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -8,11 +8,13 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div className="lg:col-span-2">
-            <img 
-              src="/assets/favicon.png" 
-              alt="Momentum Business Capital" 
-              className="h-12 w-auto mb-6 filter brightness-0 invert" 
-            />
+            <div className="bg-white p-3 rounded-lg inline-block mb-6">
+              <img 
+                src="/assets/og-image.png" 
+                alt="Momentum Business Capital" 
+                className="h-12 w-auto" 
+              />
+            </div>
             <p className="text-gray-300 mb-6 max-w-md">
               Empowering businesses with fast, flexible funding solutions. 
               We help entrepreneurs achieve their goals with competitive rates and transparent terms.
@@ -25,12 +27,21 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-[#54b64e]" />
-                <span>(800) 839-8066</span>
+                <span>(305) 307-5217</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-[#54b64e]" />
                 <span>info@momentumbusinesscapital.com</span>
               </div>
+              <a 
+                href="https://www.linkedin.com/company/momentum-business-capital/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-3 text-gray-300 hover:text-[#54b64e] transition-colors"
+              >
+                <Linkedin className="h-4 w-4 text-[#54b64e]" />
+                <span>Follow us on LinkedIn</span>
+              </a>
             </div>
           </div>
 

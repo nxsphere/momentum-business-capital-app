@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -38,16 +39,17 @@
     --radius: 0.75rem;
 
     /* Updated Momentum Business Capital colors to match official site */
-    --momentum-navy: 215 100% 15%;        /* Darker navy #003d82 */
-    --momentum-navy-light: 215 85% 25%;   /* Lighter navy variant */
+    --momentum-navy: 225 100% 25%;        /* Darker navy #003d82 */
+    --momentum-navy-light: 225 50% 35%;   /* Lighter navy variant */
     --momentum-white: 0 0% 100%;
-    --momentum-light-blue: 215 100% 97%;  /* Very light blue */
-    --momentum-gray: 215 15% 45%;         /* Cool gray */
-    --momentum-green: 142 69% 45%;        /* Bright green #28a745 */
-    --momentum-green-light: 142 50% 55%;  /* Lighter green variant */
+    --momentum-light-blue: 210 50% 95%;  /* Very light blue */
+    --momentum-gray: 220 15% 40%;         /* Cool gray */
+    --momentum-green: 120 55% 40%;        /* Bright green #28a745 */
+    --momentum-green-light: 120 55% 50%;  /* Lighter green variant */
     --momentum-orange: 24 100% 50%;       /* Accent orange #ff6600 */
     --momentum-blue-gradient-start: 215 100% 15%;
     --momentum-blue-gradient-end: 215 85% 25%;
+    --momentum-dark-gray: 220 20% 20%;
   }
 
   .dark {
@@ -88,6 +90,22 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: hsl(var(--momentum-dark-gray));
+    background-color: hsl(var(--momentum-white));
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
   }
 }
 
@@ -129,9 +147,81 @@
   .dialog-content-fast {
     animation-duration: 150ms !important;
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    .momentum-card {
+      @apply p-4 rounded-xl;
+    }
+    
+    .momentum-cta-button {
+      @apply py-3 px-6 text-base;
+    }
+    
+    .back-to-top {
+      @apply bottom-4 right-4 p-3;
+    }
+  }
+
+  /* Small mobile specific */
+  @media (max-width: 480px) {
+    .momentum-card {
+      @apply p-3;
+    }
+    
+    .container {
+      @apply px-3;
+    }
+  }
+
+  /* Touch-friendly enhancements */
+  @media (hover: none) and (pointer: coarse) {
+    .momentum-cta-button:hover,
+    .momentum-button:hover {
+      transform: none;
+    }
+    
+    .momentum-cta-button:active,
+    .momentum-button:active {
+      transform: scale(0.98);
+    }
+  }
 }
 
-/* Animations */
+/* Smooth, Pleasant Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breathing {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -140,6 +230,33 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes gentle-glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px hsla(var(--momentum-green), 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px hsla(var(--momentum-green), 0.5);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
@@ -152,10 +269,49 @@
   }
 }
 
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out;
+}
+
+.animate-breathing {
+  animation: breathing 3s ease-in-out infinite;
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out;
 }
 
+.animate-gentle-glow {
+  animation: gentle-glow 2s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease infinite;
 }

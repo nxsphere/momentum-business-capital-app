@@ -9,9 +9,9 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             <a href="#" className="mr-6">
               <img
-                src="/assets/favicon.png"
+                src="/assets/og-image.png"
                 alt="Momentum Business Capital"
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
             </a>
           </div>
@@ -19,7 +19,7 @@ const Header = () => {
             <div className="flex items-center space-x-2 text-[#3b3b3b]">
               <Phone className="h-5 w-5 text-[#54b64e]" />
               <span className="text-sm font-medium">Call us today:</span>
-              <span className="font-bold text-xl text-[#54b64e]">(800) 839-8066</span>
+              <span className="font-bold text-xl text-[#54b64e]">(305) 307-5217</span>
             </div>
           </div>
         </div>

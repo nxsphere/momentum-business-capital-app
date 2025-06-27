@@ -97,3 +97,4 @@ temp/
 # .wrangler/
 
 #/.pnp.* 
+.config/

@@ -34,5 +34,16 @@ vars = { ENVIRONMENT = "production" }
 directory = "./dist/client"
 binding = "ASSETS"
 
-# Secrets are managed via GitHub Actions and wrangler secret put commands:
+# Add these environment variables to your wrangler.toml
+# You'll need to set the actual values using `wrangler secret put <NAME>`
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+
+# Secret variables (use `wrangler secret put DOCUSEAL_API_KEY` to set)
+# DOCUSEAL_API_KEY = "your-docuseal-api-key"
+# DOCUSEAL_TEMPLATE_ID = "your-template-id"
 # RESEND_API_KEY = "your-resend-api-key" 

@@ -3,8 +3,6 @@ import { ArrowUp } from 'lucide-react';
 import { sanitizeAndValidateFormData } from './security';
 import Header from './Header';
 import HeroSection from './HeroSection';
-import BenefitsSection from './BenefitsSection';
-import FundingDetailsSection from './FundingDetailsSection';
 import ApplicationForm from './ApplicationForm';
 import TestimonialsSection from './TestimonialsSection';
 import Footer from './Footer';
@@ -22,7 +20,7 @@ const LegacyMomentumLanding = () => {
     desiredAmount: ''
   });
   
-  const DOCUSIGN_URL = 'https://powerforms.docusign.net/5e57a70a-e1aa-4f44-9317-fe32ca8cbe9c?env=na2&acct=b1f42fe1-f327-4d9f-bc8b-f3155fc84586&accountId=b1f42fe1-f327-4d9f-bc8b-f3155fc84586';
+  // Removed DocuSign URL - now using PandaDoc form integration
   
   useEffect(() => {
     const handleScroll = () => {
@@ -60,18 +58,11 @@ const LegacyMomentumLanding = () => {
   };
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white parallax-container">
       <Header />
       <HeroSection 
         isDialogOpen={isDialogOpen} 
         setIsDialogOpen={setIsDialogOpen} 
-        docusignUrl={DOCUSIGN_URL} 
-      />
-      <BenefitsSection />
-      <FundingDetailsSection 
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        docusignUrl={DOCUSIGN_URL}
       />
       <ApplicationForm 
         formData={formData}
@@ -79,7 +70,6 @@ const LegacyMomentumLanding = () => {
         handleSubmit={handleSubmit}
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
-        docusignUrl={DOCUSIGN_URL}
       />
       <TestimonialsSection />
       <Footer />
